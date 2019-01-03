@@ -23,7 +23,7 @@ module Auth0 exposing
 
 -}
 
-import Http exposing (Request)
+import Http
 import Iso8601
 import Json.Decode as Decode exposing (Decoder, bool, field, list, maybe, string)
 import Json.Encode as Encode
@@ -200,18 +200,15 @@ getAuthedUserProfile :
     Endpoint
     -> IdToken
     -> Decoder profile
-    -> Request profile
-getAuthedUserProfile auth0Endpoint idToken pDecoder =
-    Http.request
-        { method = "POST"
-        , headers = []
-        , url = auth0Endpoint ++ "/tokeninfo"
+    -> (Result Http.Error profile -> msg)
+    -> Cmd msg
+getAuthedUserProfile auth0Endpoint idToken pDecoder tagger =
+    Http.post
+        { url = auth0Endpoint ++ "/tokeninfo"
         , body =
             Http.jsonBody <|
                 Encode.object [ ( "id_token", Encode.string idToken ) ]
-        , expect = Http.expectJson pDecoder
-        , timeout = Nothing
-        , withCredentials = False
+        , expect = Http.expectJson tagger pDecoder
         }
 
 
@@ -223,8 +220,9 @@ updateUserMetaData :
     -> UserID
     -> Encode.Value
     -> Decoder profile
-    -> Request profile
-updateUserMetaData auth0Endpoint idToken userID userMeta pDecoder =
+    -> (Result Http.Error profile -> msg)
+    -> Cmd msg
+updateUserMetaData auth0Endpoint idToken userID userMeta pDecoder tagger =
     Http.request
         { method = "PATCH"
         , headers = [ Http.header "Authorization" ("Bearer " ++ idToken) ]
@@ -233,7 +231,7 @@ updateUserMetaData auth0Endpoint idToken userID userMeta pDecoder =
             Http.jsonBody <|
                 Encode.object
                     [ ( "user_metadata", userMeta ) ]
-        , expect = Http.expectJson pDecoder
+        , expect = Http.expectJson tagger pDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }

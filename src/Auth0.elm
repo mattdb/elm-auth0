@@ -1,16 +1,8 @@
-module Auth0
-    exposing
-        ( Endpoint
-        , IdToken
-        , UserID
-        , Auth0Config
-        , Profile
-        , profileDecoder
-        , OAuth2Identity
-        , auth0AuthorizeURL
-        , getAuthedUserProfile
-        , updateUserMetaData
-        )
+module Auth0 exposing
+    ( Endpoint, IdToken, UserID, Auth0Config
+    , Profile, OAuth2Identity, profileDecoder
+    , auth0AuthorizeURL, getAuthedUserProfile, updateUserMetaData
+    )
 
 {-| This library provides data types and helper functions for [Auth0](https://auth0.com)
 
@@ -33,7 +25,7 @@ module Auth0
 
 import Http exposing (Request)
 import Iso8601
-import Json.Decode as Decode exposing (Decoder, maybe, list, string, bool, field)
+import Json.Decode as Decode exposing (Decoder, bool, field, list, maybe, string)
 import Json.Encode as Encode
 import Parser
 import Time
@@ -133,7 +125,7 @@ dateDecoder =
                 Err errorMessage ->
                     Decode.fail (Parser.deadEndsToString errorMessage)
     in
-        Decode.string |> Decode.andThen dateStringDecode
+    Decode.string |> Decode.andThen dateStringDecode
 
 
 {-| The OAuth2 identity of the unified user profile. This usually tell the
@@ -193,13 +185,13 @@ auth0AuthorizeURL auth0Config responseType redirectURL scopes maybeConn =
         scopeParam =
             scopes |> String.join " " |> Url.percentEncode
     in
-        auth0Config.endpoint
-            ++ "/authorize"
-            ++ ("?response_type=" ++ responseType)
-            ++ ("&client_id=" ++ auth0Config.clientId)
-            ++ connectionParam
-            ++ ("&redirect_uri=" ++ redirectURL)
-            ++ ("&scope=" ++ scopeParam)
+    auth0Config.endpoint
+        ++ "/authorize"
+        ++ ("?response_type=" ++ responseType)
+        ++ ("&client_id=" ++ auth0Config.clientId)
+        ++ connectionParam
+        ++ ("&redirect_uri=" ++ redirectURL)
+        ++ ("&scope=" ++ scopeParam)
 
 
 {-| Get the Auth0 unified user profile which is represented by the `IdToken`
